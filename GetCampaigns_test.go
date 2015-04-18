@@ -67,7 +67,8 @@ func TestCampaignIsApplicableOsTarget(t *testing.T) {
 }
 
 func TestGetCampaigns(t *testing.T) {
-	sortedList, err := GetApplicableCampaigns(otbPlacement, CampaignTests)
+	fakeBidRepository := FakeBidRepository{CampaignCollection: CampaignTests}
+	sortedList, err := GetApplicableCampaigns(otbPlacement, fakeBidRepository)
 
 	if err != nil {
 		t.Error("Error returned", sortedList)
@@ -83,7 +84,8 @@ func TestGetCampaigns(t *testing.T) {
 }
 func TestGetCampaignsReordered(t *testing.T) {
 	CampaignTests[0].BidCpm = 0.31
-	sortedList, err := GetApplicableCampaigns(otbPlacement, CampaignTests)
+	fakeBidRepository := FakeBidRepository{CampaignCollection: CampaignTests}
+	sortedList, err := GetApplicableCampaigns(otbPlacement, fakeBidRepository)
 	if err != nil {
 		t.Error("Error returned", sortedList)
 	}

@@ -9,25 +9,28 @@ type Campaign struct {
 	Targeting       interface{}
 }
 
-// We could theoretically put the json query here as well... But I think we'd be dirtying up
-//   The otherwise clear model
+// AdTarget will match bids based on Height / Width of impression
 type AdTarget struct {
 	Height int
 	Width  int
 }
 
+// PlacementTarget will match bids based on AppName - Is placement a technical term or could this be better named (ApplicationNameTarget)
 type PlacementTarget struct {
 	AppName string
 }
 
+// CountryTarget will match bids based on Country
 type CountryTarget struct {
 	Country string
 }
 
+// OSTarget will match bids based on operating system
 type OSTarget struct {
 	OsType string
 }
 
+// SortedCampaigns will sort based on BidCPM then based on (TBD)
 type SortedCampaigns []Campaign
 
 func (s SortedCampaigns) Len() int {

@@ -10,8 +10,9 @@ import (
 )
 
 // GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given OTB
-func GetApplicableCampaigns(otbJSON string, campaigns []Campaign) ([]Campaign, error) {
+func GetApplicableCampaigns(otbJSON string, bidRepository BidRepository) ([]Campaign, error) {
 
+	campaigns := bidRepository.GetCampaigns()
 	var applicableCampaigns []Campaign
 	otbData := map[string]interface{}{}
 	decoder := json.NewDecoder(strings.NewReader(otbJSON))
