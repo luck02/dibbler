@@ -27,7 +27,7 @@ func GetApplicableCampaigns(otbJSON string, campaigns []Campaign) ([]Campaign, e
 	return applicableCampaigns, nil
 }
 
-func campaignApplicable(otbJSON map[string]interface{}, campaign Campaign) (applicable bool) {
+func campaignApplicable(otbJSON map[string]interface{}, campaign Campaign) bool {
 
 	otbQuery := jsonq.NewQuery(otbJSON)
 

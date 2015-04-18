@@ -2,49 +2,20 @@ package dibbler
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 	"testing"
 )
 
-var otbPlacement = `
-{
-    "app": {
-        "name": "Words With Friends 2 iPad"
-    },
-    "imp": [
-        {
-            "banner": {
-                "h": 250,
-                "w": 300
-            },
-            "id": "1"
-        }
-    ],
-    "device": {
-        "os": "iOS",
-        "geo": {
-            "city": "Irwin",
-            "region": "PA",
-            "zip": "15642",
-            "country": "USA"
-        }
-    }
-}
-`
-
-var CampaignTests = []Campaign{
-	{Id: 100101, BidCpm: 0.32, DailyBudget: 35.50, RemainingBudget: 35.50, Targeting: PlacementTarget{AppName: "Words With Friends 2 iPad"}},
-	{Id: 100102, BidCpm: 0.04, DailyBudget: 5.25, RemainingBudget: 5.25, Targeting: AdTarget{Height: 728, Width: 1024}},
-	{Id: 100103, BidCpm: 0.32, DailyBudget: 15.00, RemainingBudget: 15.00, Targeting: CountryTarget{Country: "USA"}},
-	{Id: 100104, BidCpm: 0.15, DailyBudget: 22.00, RemainingBudget: 22.00, Targeting: OSTarget{OsType: "Android"}},
-	{Id: 100105, BidCpm: 0.02, DailyBudget: 2.25, RemainingBudget: 2.25, Targeting: CountryTarget{Country: "MEX"}},
+func getOtbQueryObject(otbString string) map[string]interface{} {
+	otbData := map[string]interface{}{}
+	decoder := json.NewDecoder(strings.NewReader(otbString))
+	decoder.Decode(&otbData)
+	return otbData
 }
 
 func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
-	otbData := map[string]interface{}{}
-	decoder := json.NewDecoder(strings.NewReader(otbPlacement))
-	decoder.Decode(&otbData)
-
+	otbData := getOtbQueryObject(otbPlacement)
 	expected := campaignApplicable(otbData, CampaignTests[0])
 	if !expected {
 		t.Error("CampaignTest for placement should be true")
@@ -56,6 +27,45 @@ func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
 	}
 }
 
+func TestCampaignIsApplicableAdTarget(t *testing.T) {
+	otbData := getOtbQueryObject(otbAd)
+	expected := campaignApplicable(otbData, CampaignTests[1])
+	if !expected {
+		t.Error("CampaignTest for AdTarget should be true")
+	}
+
+	expected = campaignApplicable(otbData, CampaignTests[0])
+	if expected {
+		t.Error("CampaignTest for AdTarget should be false")
+	}
+}
+
+func TestCampaignIsApplicableCountryTarget(t *testing.T) {
+	otbData := getOtbQueryObject(otbAd)
+	expected := campaignApplicable(otbData, CampaignTests[2])
+	if !expected {
+		t.Error("CampaignTest for Country should be true")
+	}
+
+	expected = campaignApplicable(otbData, CampaignTests[4])
+	if expected {
+		t.Error("CampaignTest for Country should be false")
+	}
+}
+
+func TestCampaignIsApplicableOsTarget(t *testing.T) {
+	otbData := getOtbQueryObject(otbAd)
+	expected := campaignApplicable(otbData, CampaignTests[3])
+	if !expected {
+		t.Error("CampaignTest for Os should be true")
+	}
+
+	expected = campaignApplicable(otbData, CampaignTests[5])
+	if expected {
+		t.Error("CampaignTest for Os should be false")
+	}
+}
+
 func TestGetCampaigns(t *testing.T) {
 	sortedList, err := GetApplicableCampaigns(otbPlacement, CampaignTests)
 
@@ -64,27 +74,41 @@ func TestGetCampaigns(t *testing.T) {
 	}
 
 	if sortedList[0].Id != 100101 {
-		t.Error("incorrect order [0] returned", sortedList)
+		t.Error("incorrect order [0] returned", sortedList[0])
 	}
 
 	if sortedList[1].Id != 100103 {
-		t.Error("incorrect order [1] returned", sortedList)
+		t.Error("incorrect order [1] returned", sortedList[1])
 	}
 }
 func TestGetCampaignsReordered(t *testing.T) {
 	CampaignTests[0].BidCpm = 0.31
 	sortedList, err := GetApplicableCampaigns(otbPlacement, CampaignTests)
-
 	if err != nil {
 		t.Error("Error returned", sortedList)
 	}
 
 	if sortedList[0].Id != 100103 {
-		t.Error("incorrect order [0] returned", sortedList)
+		t.Error("incorrect order [0] returned", sortedList[0])
 	}
 
 	if sortedList[1].Id != 100101 {
-		t.Error("incorrect order [1] returned", sortedList)
+		t.Error("incorrect order [1] returned", sortedList[1])
 	}
+}
 
+func TestCampaignSorter(t *testing.T) {
+	bidCpm := float32(99)
+	for i, _ := range CampaignTests {
+		CampaignTests[i].BidCpm = bidCpm
+		bidCpm -= float32(5)
+	}
+	sort.Sort(SortedCampaigns(CampaignTests))
+	current := float32(99)
+	for _, campaign := range CampaignTests {
+		if campaign.BidCpm > current {
+			t.Error("campaignList out of order")
+		}
+		current = campaign.BidCpm
+	}
 }

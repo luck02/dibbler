@@ -37,5 +37,5 @@ func (s SortedCampaigns) Swap(i, j int) {
 }
 
 func (s SortedCampaigns) Less(i, j int) bool {
-	return s[i].BidCpm < s[j].BidCpm
+	return s[i].BidCpm > s[j].BidCpm
 }
