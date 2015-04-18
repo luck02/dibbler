@@ -9,5 +9,11 @@ package dibbler
 // * BidRepository will go to redis in production.
 func PlaceBids(sortedCampaigns []Campaign, bidRepository BidRepository) (Campaign, error) {
 
+	for _, campaign := range sortedCampaigns {
+		success := bidRepository.PlaceBid(campaign)
+		if success {
+			return campaign, nil
+		}
+	}
 	return Campaign{}, nil
 }
