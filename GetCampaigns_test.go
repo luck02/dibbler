@@ -73,11 +73,11 @@ func TestGetCampaigns(t *testing.T) {
 		t.Error("Error returned", sortedList)
 	}
 
-	if sortedList[0].Id != 100101 {
+	if sortedList[0].ID != 100101 {
 		t.Error("incorrect order [0] returned", sortedList[0])
 	}
 
-	if sortedList[1].Id != 100103 {
+	if sortedList[1].ID != 100103 {
 		t.Error("incorrect order [1] returned", sortedList[1])
 	}
 }
@@ -88,18 +88,18 @@ func TestGetCampaignsReordered(t *testing.T) {
 		t.Error("Error returned", sortedList)
 	}
 
-	if sortedList[0].Id != 100103 {
+	if sortedList[0].ID != 100103 {
 		t.Error("incorrect order [0] returned", sortedList[0])
 	}
 
-	if sortedList[1].Id != 100101 {
+	if sortedList[1].ID != 100101 {
 		t.Error("incorrect order [1] returned", sortedList[1])
 	}
 }
 
 func TestCampaignSorter(t *testing.T) {
 	bidCpm := float32(99)
-	for i, _ := range CampaignTests {
+	for i := range CampaignTests {
 		CampaignTests[i].BidCpm = bidCpm
 		bidCpm -= float32(5)
 	}

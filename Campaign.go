@@ -1,7 +1,8 @@
 package dibbler
 
+// Campaign holds informtion about the bidding strategy of the given campaign.
 type Campaign struct {
-	Id              int32
+	ID              int32
 	BidCpm          float32
 	DailyBudget     float32
 	RemainingBudget float32
