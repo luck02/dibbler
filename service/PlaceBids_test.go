@@ -36,3 +36,21 @@ func TestPlaceBidsTriesOnceIfCampaignIsExhausted(t *testing.T) {
 		t.Errorf("place bid should try once when the campaign is exhausted")
 	}
 }
+
+func TestPlaceBidsPlacesSuccessfullBid(t *testing.T) {
+	bidRepo := new(repo.FakeBidRepository)
+	bidRepo.BidShouldBeSuccesfull = true
+	success, err := PlaceBids(fixtures.CampaignTests[0:1], bidRepo)
+
+	if err != nil {
+		t.Errorf("Error should be nil %v", err)
+	}
+
+	if !success {
+		t.Error("Bid should be successfull")
+	}
+
+	if bidRepo.BidAttempts != 1 {
+		t.Errorf("Bid attempts should be 1 : not %d", bidRepo.BidAttempts)
+	}
+}
