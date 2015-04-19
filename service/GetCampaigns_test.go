@@ -1,10 +1,14 @@
-package dibbler
+package service
 
 import (
 	"encoding/json"
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/luck02/dibbler/fixtures"
+	"github.com/luck02/dibbler/models"
+	"github.com/luck02/dibbler/repo"
 )
 
 func getOtbQueryObject(otbString string) map[string]interface{} {
@@ -15,60 +19,60 @@ func getOtbQueryObject(otbString string) map[string]interface{} {
 }
 
 func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
-	otbData := getOtbQueryObject(otbPlacement)
-	expected := campaignApplicable(otbData, CampaignTests[0])
+	otbData := getOtbQueryObject(fixtures.OtbPlacement)
+	expected := campaignApplicable(otbData, fixtures.CampaignTests[0])
 	if !expected {
 		t.Error("CampaignTest for placement should be true")
 	}
 
-	expected = campaignApplicable(otbData, CampaignTests[1])
+	expected = campaignApplicable(otbData, fixtures.CampaignTests[1])
 	if expected {
 		t.Error("CampaignTest for placement should be false")
 	}
 }
 
 func TestCampaignIsApplicableAdTarget(t *testing.T) {
-	otbData := getOtbQueryObject(otbAd)
-	expected := campaignApplicable(otbData, CampaignTests[1])
+	otbData := getOtbQueryObject(fixtures.OtbAd)
+	expected := campaignApplicable(otbData, fixtures.CampaignTests[1])
 	if !expected {
 		t.Error("CampaignTest for AdTarget should be true")
 	}
 
-	expected = campaignApplicable(otbData, CampaignTests[0])
+	expected = campaignApplicable(otbData, fixtures.CampaignTests[0])
 	if expected {
 		t.Error("CampaignTest for AdTarget should be false")
 	}
 }
 
 func TestCampaignIsApplicableCountryTarget(t *testing.T) {
-	otbData := getOtbQueryObject(otbAd)
-	expected := campaignApplicable(otbData, CampaignTests[2])
+	otbData := getOtbQueryObject(fixtures.OtbAd)
+	expected := campaignApplicable(otbData, fixtures.CampaignTests[2])
 	if !expected {
 		t.Error("CampaignTest for Country should be true")
 	}
 
-	expected = campaignApplicable(otbData, CampaignTests[4])
+	expected = campaignApplicable(otbData, fixtures.CampaignTests[4])
 	if expected {
 		t.Error("CampaignTest for Country should be false")
 	}
 }
 
 func TestCampaignIsApplicableOsTarget(t *testing.T) {
-	otbData := getOtbQueryObject(otbAd)
-	expected := campaignApplicable(otbData, CampaignTests[3])
+	otbData := getOtbQueryObject(fixtures.OtbAd)
+	expected := campaignApplicable(otbData, fixtures.CampaignTests[3])
 	if !expected {
 		t.Error("CampaignTest for Os should be true")
 	}
 
-	expected = campaignApplicable(otbData, CampaignTests[5])
+	expected = campaignApplicable(otbData, fixtures.CampaignTests[5])
 	if expected {
 		t.Error("CampaignTest for Os should be false")
 	}
 }
 
 func TestGetCampaigns(t *testing.T) {
-	fakeBidRepository := FakeBidRepository{CampaignCollection: CampaignTests}
-	sortedList, err := GetApplicableCampaigns(otbPlacement, fakeBidRepository)
+	fakeBidRepository := repo.FakeBidRepository{CampaignCollection: fixtures.CampaignTests}
+	sortedList, err := GetApplicableCampaigns(fixtures.OtbPlacement, fakeBidRepository)
 
 	if err != nil {
 		t.Error("Error returned", sortedList)
@@ -83,9 +87,9 @@ func TestGetCampaigns(t *testing.T) {
 	}
 }
 func TestGetCampaignsReordered(t *testing.T) {
-	CampaignTests[0].BidCpm = 0.31
-	fakeBidRepository := FakeBidRepository{CampaignCollection: CampaignTests}
-	sortedList, err := GetApplicableCampaigns(otbPlacement, fakeBidRepository)
+	fixtures.CampaignTests[0].BidCpm = 0.31
+	fakeBidRepository := repo.FakeBidRepository{CampaignCollection: fixtures.CampaignTests}
+	sortedList, err := GetApplicableCampaigns(fixtures.OtbPlacement, fakeBidRepository)
 	if err != nil {
 		t.Error("Error returned", sortedList)
 	}
@@ -101,13 +105,13 @@ func TestGetCampaignsReordered(t *testing.T) {
 
 func TestCampaignSorter(t *testing.T) {
 	bidCpm := float32(99)
-	for i := range CampaignTests {
-		CampaignTests[i].BidCpm = bidCpm
+	for i := range fixtures.CampaignTests {
+		fixtures.CampaignTests[i].BidCpm = bidCpm
 		bidCpm -= float32(5)
 	}
-	sort.Sort(SortedCampaigns(CampaignTests))
+	sort.Sort(models.SortedCampaigns(fixtures.CampaignTests))
 	current := float32(99)
-	for _, campaign := range CampaignTests {
+	for _, campaign := range fixtures.CampaignTests {
 		if campaign.BidCpm > current {
 			t.Error("campaignList out of order")
 		}

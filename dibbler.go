@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/luck02/dibbler/dibbler"
+	"github.com/luck02/dibbler/fixtures"
+	"github.com/luck02/dibbler/repo"
+	"github.com/luck02/dibbler/service"
 )
 
 func main() {
@@ -16,17 +18,17 @@ func main() {
 }
 
 func otbHandler(w http.ResponseWriter, r *http.Request) {
-	redisBidRepository := dibbler.FakeBidRepository{CampaignCollection: dibbler.CampaignTests}
+	redisBidRepository := repo.FakeBidRepository{CampaignCollection: fixtures.CampaignTests}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())
-	eligibleCampaigns, err := dibbler.GetApplicableCampaigns(body, redisBidRepository)
+	eligibleCampaigns, err := service.GetApplicableCampaigns(body, redisBidRepository)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	success, err := dibbler.PlaceBids(eligibleCampaigns, redisBidRepository)
+	success, err := service.PlaceBids(eligibleCampaigns, redisBidRepository)
 
 	if err != nil {
 		fmt.Println(err)

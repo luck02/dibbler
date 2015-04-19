@@ -1,4 +1,4 @@
-package dibbler
+package models
 
 // Campaign holds informtion about the bidding strategy of the given campaign.
 type Campaign struct {

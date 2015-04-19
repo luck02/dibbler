@@ -1,9 +1,12 @@
-package dibbler
+package service
 
 import (
 	"errors"
 	"math/rand"
 	"time"
+
+	"github.com/luck02/dibbler/models"
+	"github.com/luck02/dibbler/repo"
 )
 
 // PlaceBids takes a list of sorted campaigns and a bidRepository.
@@ -16,7 +19,7 @@ import (
 // * So if I bid on first, fail...  But there's still budget left.  That means the campaign is in contention.
 //      I should probably do something like build a function that determines retries based on relative value between cpm's and such
 //		however, I think for a proof of concept / practice assignment that's probably more than required.
-func PlaceBids(sortedCampaigns []Campaign, bidRepository BidRepository) (bool, error) {
+func PlaceBids(sortedCampaigns []models.Campaign, bidRepository repo.BidRepository) (bool, error) {
 	retryCount := 3 //This needs to be configurable and possibly a ratio as mentioend above
 
 	for _, campaign := range sortedCampaigns {
