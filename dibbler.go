@@ -18,7 +18,8 @@ func main() {
 }
 
 func otbHandler(w http.ResponseWriter, r *http.Request) {
-	redisBidRepository := repo.FakeBidRepository{CampaignCollection: fixtures.CampaignTests}
+	redisBidRepository := new(repo.FakeBidRepository)
+	redisBidRepository.CampaignCollection = fixtures.CampaignTests
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -20,7 +21,7 @@ import (
 //      I should probably do something like build a function that determines retries based on relative value between cpm's and such
 //		however, I think for a proof of concept / practice assignment that's probably more than required.
 func PlaceBids(sortedCampaigns []models.Campaign, bidRepository repo.BidRepository) (bool, error) {
-	retryCount := 3 //This needs to be configurable and possibly a ratio as mentioend above
+	retryCount := 3 //This needs to be configurable and possibly a ratio as mentioned above
 
 	for _, campaign := range sortedCampaigns {
 
@@ -28,9 +29,10 @@ func PlaceBids(sortedCampaigns []models.Campaign, bidRepository repo.BidReposito
 			if resultCampaign, success := bidRepository.PlaceBid(campaign); success {
 				return true, nil
 			} else if resultCampaign.RemainingBudget <= 0 {
+				fmt.Printf("Campaign %v exhausted", resultCampaign)
 				break // campaign exhausted
 			} else {
-				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond)
+				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond) // I think this is a smell
 			}
 		}
 	}

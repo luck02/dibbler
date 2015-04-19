@@ -10,15 +10,20 @@ type BidRepository interface {
 }
 
 type FakeBidRepository struct {
-	CampaignCollection []models.Campaign
-	BidAttempts        int
+	CampaignCollection       []models.Campaign
+	BidAttempts              int
+	TestingExhaustedCampaign bool
 }
 
-func (r FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool) {
-	return campaign, true
+func (r *FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool) {
+	r.BidAttempts += 1
+	if r.TestingExhaustedCampaign {
+		campaign.RemainingBudget = 0
+	}
+	return campaign, false
 }
 
-func (r FakeBidRepository) GetCampaigns() []models.Campaign {
+func (r *FakeBidRepository) GetCampaigns() []models.Campaign {
 	return r.CampaignCollection
 }
 
