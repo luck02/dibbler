@@ -1,12 +1,15 @@
-package dibbler
+package repo
+
+import "github.com/luck02/dibbler/dibbler"
 
 type BidRepository interface {
-	PlaceBid(Campaign) (Campaign, bool)
+	PlaceBid(dibbler.Campaign) (Campaign, bool)
 	GetCampaigns() []Campaign
 }
 
 type FakeBidRepository struct {
 	CampaignCollection []Campaign
+	BidAttempts        int
 }
 
 func (r FakeBidRepository) PlaceBid(campaign Campaign) (Campaign, bool) {

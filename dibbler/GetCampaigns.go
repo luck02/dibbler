@@ -7,10 +7,11 @@ import (
 	"strings"
 
 	"github.com/jmoiron/jsonq"
+	"github.com/luck02/dibbler/dibbler/repo"
 )
 
 // GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given OTB
-func GetApplicableCampaigns(otbJSON string, bidRepository BidRepository) ([]Campaign, error) {
+func GetApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([]Campaign, error) {
 
 	campaigns := bidRepository.GetCampaigns()
 	var applicableCampaigns []Campaign
