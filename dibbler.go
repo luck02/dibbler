@@ -16,7 +16,7 @@ func main() {
 }
 
 func otbHandler(w http.ResponseWriter, r *http.Request) {
-	redisBidRepository := dibbler.RedisBidRepository{}
+	redisBidRepository := dibbler.FakeBidRepository{CampaignCollection: dibbler.CampaignTests}
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())

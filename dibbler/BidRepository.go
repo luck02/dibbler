@@ -21,6 +21,7 @@ type RedisBidRepository struct {
 }
 
 func (r RedisBidRepository) PlaceBid(campaign Campaign) (Campaign, bool) {
+
 	return Campaign{}, true
 }
 

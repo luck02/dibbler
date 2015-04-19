@@ -21,6 +21,8 @@ func GetApplicableCampaigns(otbJSON string, bidRepository BidRepository) ([]Camp
 	for _, campaign := range campaigns {
 		if campaignApplicable(otbData, campaign) {
 			applicableCampaigns = append(applicableCampaigns, campaign)
+			fmt.Println("Applicable Campaign:")
+			fmt.Println(campaign)
 		}
 	}
 

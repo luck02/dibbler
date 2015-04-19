@@ -17,7 +17,7 @@ import (
 //      I should probably do something like build a function that determines retries based on relative value between cpm's and such
 //		however, I think for a proof of concept / practice assignment that's probably more than required.
 func PlaceBids(sortedCampaigns []Campaign, bidRepository BidRepository) (bool, error) {
-	retryCount := 3
+	retryCount := 3 //This needs to be configurable and possibly a ratio as mentioend above
 
 	for _, campaign := range sortedCampaigns {
 
