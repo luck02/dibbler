@@ -12,12 +12,12 @@ import (
 
 func main() {
 	fmt.Println("start")
-	http.HandleFunc("/dibbler", otbHandler)
+	http.HandleFunc("/dibbler", RequestToBidHandler)
 	err := http.ListenAndServe(":8080", nil)
 	fmt.Println(err)
 }
 
-func otbHandler(w http.ResponseWriter, r *http.Request) {
+func RequestToBidHandler(w http.ResponseWriter, r *http.Request) {
 	bidRepository := new(repo.FakeBidRepository)
 	bidRepository.CampaignCollection = fixtures.CampaignTests
 
