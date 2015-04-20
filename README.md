@@ -4,7 +4,7 @@ Dibbler is intended as a proof of concept.
 
 The goal is to accept OpenRTB requests and determine 
 * if a campaign should target the RTB.
-* This involves the campaign being configured to look for certain attributes on the 
+* This involves the campaign being configured to look for certain attributes on the RequestToBid 
 * The bid placed should always be the most profitable bid.
 * caveat: If the most profitable bid is locked by other bid processes the bid will be retried a few times and then the next most profitable bid will be attempted until all applicable campaigns are tried.
 * Placement: App Name
