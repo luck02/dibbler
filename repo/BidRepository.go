@@ -2,6 +2,7 @@ package repo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -42,7 +43,8 @@ func (r *RedisBidRepository) saveCampaign(campaign models.Campaign) error {
 	if err != nil {
 		return err
 	}
-	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), targetType, campaign.DailyBudget, campaign.RemainingBudget, targetJson)
+	fmt.Printf("%+v", campaign)
+	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), campaign.ID, targetType, campaign.BidCpm, campaign.DailyBudget, campaign.RemainingBudget, targetJson)
 
 	return err
 }
@@ -50,18 +52,46 @@ func (r *RedisBidRepository) getCampaign(ID int32) (models.Campaign, error) {
 	conn := r.pool.Get()
 	campaign := models.Campaign{}
 	var targetType string
+	var targetJson string
 	reply, err := redis.Values(conn.Do("HGETALL", fmt.Sprintf("campaigns:%d", ID)))
 	if err != nil {
 		return models.Campaign{}, err
 	}
 
 	fmt.Println(reply)
-	_, err = redis.Scan(reply, &targetType, &campaign.DailyBudget, &campaign.RemainingBudget)
+	_, err = redis.Scan(reply, &campaign.ID, &targetType, &campaign.BidCpm, &campaign.DailyBudget, &campaign.RemainingBudget, &targetJson)
 	fmt.Println(targetType)
 	if err != nil {
 		return models.Campaign{}, err
 	}
+	campaign.Targeting, err = deserializeTarget(targetType, targetJson)
+	if err != nil {
+		return models.Campaign{}, err
+	}
 	return campaign, nil
+}
+
+func deserializeTarget(targetType, targetJson string) (interface{}, error) {
+	switch targetType {
+	case reflect.TypeOf(models.AdTarget{}).String():
+		var adTarget models.AdTarget
+		jsonBytes := []byte(targetJson)
+		err := json.Unmarshal(jsonBytes, &adTarget)
+		if err != nil {
+			return nil, err
+		}
+		return adTarget, nil
+	case reflect.TypeOf(models.PlacementTarget{}).String():
+		var placementTarget models.PlacementTarget
+		jsonBytes := []byte(targetJson)
+		err := json.Unmarshal(jsonBytes, &placementTarget)
+		if err != nil {
+			return nil, err
+		}
+		return placementTarget, nil
+	}
+
+	return nil, errors.New(fmt.Sprintf("Unable to find type: %+v", targetType))
 }
 
 func newPool(server string) *redis.Pool {

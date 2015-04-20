@@ -40,6 +40,7 @@ func TestICanSaveAndLoadACampaign(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Error should be nil, was: %v", err)
+		return
 	}
 
 	savedCampaign, err := bidRepository.getCampaign(fixtures.CampaignTests[0].ID)
