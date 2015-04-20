@@ -10,7 +10,7 @@ The goal is to accept OpenRTB requests and determine
 * Etc, this is a proof of concept and it could get quite a bit more complex:
 
 Architecture:
-* Simple golang web server.  I will probably drop in Tiger Tonic later in order to capitalize on someone elses go routine handling.
+* Simple golang web server.  I thought about dropping in tiger tonic, however as of right now I don't see a use case for it.
 * Orchestration that launches in a go routine (not yet) and returns a 200 if a bid has been placed or a 204 if no bid is to be placed.
 * dibbler.go is the main web server.
 * Calls GetCampaigns to get list of applicable campaigns
