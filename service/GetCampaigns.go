@@ -16,12 +16,12 @@ func GetApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([
 
 	campaigns := bidRepository.GetCampaigns()
 	var applicableCampaigns []models.Campaign
-	otbData := map[string]interface{}{}
+	requestToBidData := map[string]interface{}{}
 	decoder := json.NewDecoder(strings.NewReader(otbJSON))
-	decoder.Decode(&otbData)
+	decoder.Decode(&requestToBidData)
 
 	for _, campaign := range campaigns {
-		if campaignApplicable(otbData, campaign) {
+		if campaignApplicable(requestToBidData, campaign) {
 			applicableCampaigns = append(applicableCampaigns, campaign)
 			fmt.Println("Applicable Campaign:")
 			fmt.Println(campaign)
@@ -34,22 +34,22 @@ func GetApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([
 
 func campaignApplicable(otbJSON map[string]interface{}, campaign models.Campaign) bool {
 
-	otbQuery := jsonq.NewQuery(otbJSON)
+	requestToBidQuery := jsonq.NewQuery(otbJSON)
 
 	switch target := campaign.Targeting.(type) {
 	case models.PlacementTarget:
-		if appName, err := otbQuery.String("app", "name"); err != nil {
+		if appName, err := requestToBidQuery.String("app", "name"); err != nil {
 			fmt.Println(err)
 		} else {
 			return appName == target.AppName
 		}
 	case models.AdTarget:
-		width, err := otbQuery.Int("imp", "0", "banner", "w")
+		width, err := requestToBidQuery.Int("imp", "0", "banner", "w")
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		height, err := otbQuery.Int("imp", "0", "banner", "h")
+		height, err := requestToBidQuery.Int("imp", "0", "banner", "h")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -58,13 +58,13 @@ func campaignApplicable(otbJSON map[string]interface{}, campaign models.Campaign
 			return true
 		}
 	case models.CountryTarget:
-		if country, err := otbQuery.String("device", "geo", "country"); err != nil {
+		if country, err := requestToBidQuery.String("device", "geo", "country"); err != nil {
 			fmt.Println(err)
 		} else {
 			return country == target.Country
 		}
 	case models.OSTarget:
-		if osName, err := otbQuery.String("device", "os"); err != nil {
+		if osName, err := requestToBidQuery.String("device", "os"); err != nil {
 			fmt.Println(err)
 		} else {
 			return osName == target.OsType

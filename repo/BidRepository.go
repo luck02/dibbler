@@ -10,6 +10,9 @@ type BidRepository interface {
 }
 
 type RedisBidRepository struct {
+	URL      string
+	Port     int
+	Password string
 }
 
 func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool) {
