@@ -19,7 +19,7 @@ func getOtbQueryObject(otbString string) map[string]interface{} {
 }
 
 func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.OtbPlacement)
+	otbData := getOtbQueryObject(fixtures.RequestToBidPlacement)
 	expected := campaignApplicable(otbData, fixtures.CampaignTests[0])
 	if !expected {
 		t.Error("CampaignTest for placement should be true")
@@ -32,7 +32,7 @@ func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
 }
 
 func TestCampaignIsApplicableAdTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.OtbAd)
+	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
 	expected := campaignApplicable(otbData, fixtures.CampaignTests[1])
 	if !expected {
 		t.Error("CampaignTest for AdTarget should be true")
@@ -45,7 +45,7 @@ func TestCampaignIsApplicableAdTarget(t *testing.T) {
 }
 
 func TestCampaignIsApplicableCountryTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.OtbAd)
+	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
 	expected := campaignApplicable(otbData, fixtures.CampaignTests[2])
 	if !expected {
 		t.Error("CampaignTest for Country should be true")
@@ -58,7 +58,7 @@ func TestCampaignIsApplicableCountryTarget(t *testing.T) {
 }
 
 func TestCampaignIsApplicableOsTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.OtbAd)
+	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
 	expected := campaignApplicable(otbData, fixtures.CampaignTests[3])
 	if !expected {
 		t.Error("CampaignTest for Os should be true")
@@ -73,7 +73,7 @@ func TestCampaignIsApplicableOsTarget(t *testing.T) {
 func TestGetCampaigns(t *testing.T) {
 	fakeBidRepository := new(repo.FakeBidRepository)
 	fakeBidRepository.CampaignCollection = fixtures.CampaignTests
-	sortedList, err := GetApplicableCampaigns(fixtures.OtbPlacement, fakeBidRepository)
+	sortedList, err := GetSortedApplicableCampaigns(fixtures.RequestToBidPlacement, fakeBidRepository)
 
 	if err != nil {
 		t.Error("Error returned", sortedList)
@@ -91,7 +91,7 @@ func TestGetCampaignsReordered(t *testing.T) {
 	fixtures.CampaignTests[0].BidCpm = 0.31
 	fakeBidRepository := new(repo.FakeBidRepository)
 	fakeBidRepository.CampaignCollection = fixtures.CampaignTests
-	sortedList, err := GetApplicableCampaigns(fixtures.OtbPlacement, fakeBidRepository)
+	sortedList, err := GetSortedApplicableCampaigns(fixtures.RequestToBidPlacement, fakeBidRepository)
 	if err != nil {
 		t.Error("Error returned", sortedList)
 	}

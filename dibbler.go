@@ -12,19 +12,19 @@ import (
 
 func main() {
 	fmt.Println("start")
-	http.HandleFunc("/dibbler", RequestToBidHandler)
+	http.HandleFunc("/dibbler", requestToBidHandler)
 	err := http.ListenAndServe(":8080", nil)
 	fmt.Println(err)
 }
 
-func RequestToBidHandler(w http.ResponseWriter, r *http.Request) {
+func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
 	bidRepository := new(repo.FakeBidRepository)
 	bidRepository.CampaignCollection = fixtures.CampaignTests
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())
-	eligibleCampaigns, err := service.GetApplicableCampaigns(body, bidRepository)
+	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, bidRepository)
 
 	if err != nil {
 		fmt.Println(err)

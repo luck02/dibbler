@@ -12,7 +12,7 @@ import (
 )
 
 // GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given OTB
-func GetApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
+func GetSortedApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
 
 	campaigns := bidRepository.GetCampaigns()
 	var applicableCampaigns []models.Campaign
@@ -70,7 +70,5 @@ func campaignApplicable(otbJSON map[string]interface{}, campaign models.Campaign
 			return osName == target.OsType
 		}
 	}
-
 	return false
-
 }

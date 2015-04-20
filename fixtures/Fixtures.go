@@ -2,7 +2,7 @@ package fixtures
 
 import . "github.com/luck02/dibbler/models"
 
-var OtbPlacement = `
+var RequestToBidPlacement = `
 {
     "app": {
         "name": "Words With Friends 2 iPad"
@@ -27,7 +27,7 @@ var OtbPlacement = `
     }
 }
 `
-var OtbAd = `
+var RequestToBidAdSize = `
 {
     "app": {
         "name": "Test App For ad placement"
