@@ -14,7 +14,10 @@ import (
 // GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given requestToBid
 func GetSortedApplicableCampaigns(requestToBidJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
 
-	campaigns := bidRepository.GetCampaigns()
+	campaigns, err := bidRepository.GetCampaigns()
+	if err != nil {
+		return nil, err
+	}
 	var applicableCampaigns []models.Campaign
 	requestToBidData := map[string]interface{}{}
 	decoder := json.NewDecoder(strings.NewReader(requestToBidJSON))

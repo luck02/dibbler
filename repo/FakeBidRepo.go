@@ -17,6 +17,6 @@ func (r *FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign,
 	return campaign, r.BidShouldBeSuccesfull
 }
 
-func (r *FakeBidRepository) GetCampaigns() []models.Campaign {
-	return r.CampaignCollection
+func (r *FakeBidRepository) GetCampaigns() ([]models.Campaign, error) {
+	return r.CampaignCollection, nil
 }

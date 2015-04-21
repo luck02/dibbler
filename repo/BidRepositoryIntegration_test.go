@@ -51,7 +51,26 @@ func TestICanSaveAndLoadACampaign(t *testing.T) {
 	if !reflect.DeepEqual(fixtures.CampaignTests[0], savedCampaign) {
 		t.Errorf("campaigns should be equal\n %+v \n %+v", fixtures.CampaignTests[0], savedCampaign)
 	}
+}
 
+func TestICanSaveFixturesAndLoadThem(t *testing.T) {
+	bidRepository := NewRedisBidRepository("localhost:6379")
+
+	for _, value := range fixtures.CampaignTests {
+		err := bidRepository.saveCampaign(value)
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	campaigns, err := bidRepository.GetCampaigns()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(campaigns) != len(fixtures.CampaignTests) {
+		t.Errorf("Expected %+v\n Got %+v\n", fixtures.CampaignTests, campaigns)
+	}
 }
 
 func TestPlaceBidSuccess(t *testing.T) {

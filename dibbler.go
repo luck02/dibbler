@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/luck02/dibbler/fixtures"
 	"github.com/luck02/dibbler/repo"
 	"github.com/luck02/dibbler/service"
 )
@@ -18,8 +17,7 @@ func main() {
 }
 
 func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
-	bidRepository := new(repo.FakeBidRepository)
-	bidRepository.CampaignCollection = fixtures.CampaignTests
+	bidRepository := repo.NewRedisBidRepository("localhost:6379")
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
