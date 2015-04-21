@@ -2,11 +2,11 @@ package models
 
 // Campaign holds informtion about the bidding strategy of the given campaign.
 type Campaign struct {
-	ID              int32
-	BidCpm          float32
-	DailyBudget     float32
-	RemainingBudget float32
-	Targeting       interface{}
+	ID              int32       `json:"id"`
+	BidCpm          float32     `json:"bidcpm"`
+	DailyBudget     float32     `json:"daily_budget"`
+	RemainingBudget float32     `json:"-"`
+	Targeting       interface{} `json:"-"`
 }
 
 // AdTarget will match bids based on Height / Width of impression

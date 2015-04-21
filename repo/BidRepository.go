@@ -37,33 +37,43 @@ func (r *RedisBidRepository) GetCampaigns() []models.Campaign {
 
 func (r *RedisBidRepository) saveCampaign(campaign models.Campaign) error {
 	conn := r.pool.Get()
-	// HMSET campaigns:1 id "100101" type "Placement" remainingBudget 25.50
+	campaignJSON, err := json.Marshal(campaign)
+	if err != nil {
+		return err
+	}
+
 	targetType := reflect.TypeOf(campaign.Targeting)
 	targetJson, err := json.Marshal(campaign.Targeting)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", campaign)
-	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), campaign.ID, targetType, campaign.BidCpm, campaign.DailyBudget, campaign.RemainingBudget, targetJson)
+	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), "CampaignJson", campaignJSON, targetType, targetJson, "RemainingBudget", campaign.RemainingBudget)
 
 	return err
 }
 func (r *RedisBidRepository) getCampaign(ID int32) (models.Campaign, error) {
 	conn := r.pool.Get()
 	campaign := models.Campaign{}
+	var campaignJSONKey string
+	var campaignJSON string
 	var targetType string
 	var targetJson string
+	var remainingBudget float32
+	var remainingBudgetKey string // these key strings seem to be placeholders and are required.  There's probably a smarter way to make this work.
 	reply, err := redis.Values(conn.Do("HGETALL", fmt.Sprintf("campaigns:%d", ID)))
 	if err != nil {
 		return models.Campaign{}, err
 	}
 
-	fmt.Println(reply)
-	_, err = redis.Scan(reply, &campaign.ID, &targetType, &campaign.BidCpm, &campaign.DailyBudget, &campaign.RemainingBudget, &targetJson)
-	fmt.Println(targetType)
+	_, err = redis.Scan(reply, &campaignJSONKey, &campaignJSON, &targetType, &targetJson, &remainingBudgetKey, &remainingBudget)
 	if err != nil {
 		return models.Campaign{}, err
 	}
+	err = json.Unmarshal([]byte(campaignJSON), &campaign)
+	if err != nil {
+		return models.Campaign{}, err
+	}
+	campaign.RemainingBudget = remainingBudget
 	campaign.Targeting, err = deserializeTarget(targetType, targetJson)
 	if err != nil {
 		return models.Campaign{}, err
