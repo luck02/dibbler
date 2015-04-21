@@ -11,60 +11,60 @@ import (
 	"github.com/luck02/dibbler/repo"
 )
 
-func getOtbQueryObject(otbString string) map[string]interface{} {
-	otbData := map[string]interface{}{}
-	decoder := json.NewDecoder(strings.NewReader(otbString))
-	decoder.Decode(&otbData)
-	return otbData
+func getRequestToBidQueryObject(requestToBidJson string) map[string]interface{} {
+	requestToBidData := map[string]interface{}{}
+	decoder := json.NewDecoder(strings.NewReader(requestToBidJson))
+	decoder.Decode(&requestToBidData)
+	return requestToBidData
 }
 
 func TestCampaignIsApplicablePlacementTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.RequestToBidPlacement)
-	expected := campaignApplicable(otbData, fixtures.CampaignTests[0])
+	requestToBidData := getRequestToBidQueryObject(fixtures.RequestToBidPlacement)
+	expected := campaignApplicable(requestToBidData, fixtures.CampaignTests[0])
 	if !expected {
 		t.Error("CampaignTest for placement should be true")
 	}
 
-	expected = campaignApplicable(otbData, fixtures.CampaignTests[1])
+	expected = campaignApplicable(requestToBidData, fixtures.CampaignTests[1])
 	if expected {
 		t.Error("CampaignTest for placement should be false")
 	}
 }
 
 func TestCampaignIsApplicableAdTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
-	expected := campaignApplicable(otbData, fixtures.CampaignTests[1])
+	requestToBidData := getRequestToBidQueryObject(fixtures.RequestToBidAdSize)
+	expected := campaignApplicable(requestToBidData, fixtures.CampaignTests[1])
 	if !expected {
 		t.Error("CampaignTest for AdTarget should be true")
 	}
 
-	expected = campaignApplicable(otbData, fixtures.CampaignTests[0])
+	expected = campaignApplicable(requestToBidData, fixtures.CampaignTests[0])
 	if expected {
 		t.Error("CampaignTest for AdTarget should be false")
 	}
 }
 
 func TestCampaignIsApplicableCountryTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
-	expected := campaignApplicable(otbData, fixtures.CampaignTests[2])
+	requestToBidData := getRequestToBidQueryObject(fixtures.RequestToBidAdSize)
+	expected := campaignApplicable(requestToBidData, fixtures.CampaignTests[2])
 	if !expected {
 		t.Error("CampaignTest for Country should be true")
 	}
 
-	expected = campaignApplicable(otbData, fixtures.CampaignTests[4])
+	expected = campaignApplicable(requestToBidData, fixtures.CampaignTests[4])
 	if expected {
 		t.Error("CampaignTest for Country should be false")
 	}
 }
 
 func TestCampaignIsApplicableOsTarget(t *testing.T) {
-	otbData := getOtbQueryObject(fixtures.RequestToBidAdSize)
-	expected := campaignApplicable(otbData, fixtures.CampaignTests[3])
+	requestToBidData := getRequestToBidQueryObject(fixtures.RequestToBidAdSize)
+	expected := campaignApplicable(requestToBidData, fixtures.CampaignTests[3])
 	if !expected {
 		t.Error("CampaignTest for Os should be true")
 	}
 
-	expected = campaignApplicable(otbData, fixtures.CampaignTests[5])
+	expected = campaignApplicable(requestToBidData, fixtures.CampaignTests[5])
 	if expected {
 		t.Error("CampaignTest for Os should be false")
 	}

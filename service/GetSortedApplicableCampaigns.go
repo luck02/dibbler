@@ -11,13 +11,13 @@ import (
 	"github.com/luck02/dibbler/repo"
 )
 
-// GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given OTB
-func GetSortedApplicableCampaigns(otbJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
+// GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given requestToBid
+func GetSortedApplicableCampaigns(requestToBidJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
 
 	campaigns := bidRepository.GetCampaigns()
 	var applicableCampaigns []models.Campaign
 	requestToBidData := map[string]interface{}{}
-	decoder := json.NewDecoder(strings.NewReader(otbJSON))
+	decoder := json.NewDecoder(strings.NewReader(requestToBidJSON))
 	decoder.Decode(&requestToBidData)
 
 	for _, campaign := range campaigns {
@@ -32,9 +32,9 @@ func GetSortedApplicableCampaigns(otbJSON string, bidRepository repo.BidReposito
 	return applicableCampaigns, nil
 }
 
-func campaignApplicable(otbJSON map[string]interface{}, campaign models.Campaign) bool {
+func campaignApplicable(requestToBidJSON map[string]interface{}, campaign models.Campaign) bool {
 
-	requestToBidQuery := jsonq.NewQuery(otbJSON)
+	requestToBidQuery := jsonq.NewQuery(requestToBidJSON)
 
 	switch target := campaign.Targeting.(type) {
 	case models.PlacementTarget:
