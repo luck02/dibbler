@@ -18,7 +18,7 @@ Architecture:
 * Will use Redis key value store to keep client credentials and use watch / exec to ensure no concurrent modification of the amount of cash remaining in a given campaign.
 
 ToDo:
-* Refactor all the bad naming (otbBlah).  Not meaningfull (and wrong acronym anyways)
+* (done)Refactor all the bad naming (otbBlah).  Not meaningfull (and wrong acronym anyways)
 * Finish the concrete redis datalayer.  I have this more or less working but I'm pretty sure it will be cleaner as a json representation for the base model object + a json representation of the target object and 2 key value pairs for: TargetType and RemainingAmount
 * Add a Log object that pipes to whatever implements a log interface.  Initially this will pipe to /var/log/dibbler/* but a later implementation would likely pipe to a message queue like AWS Kinesis or Kafka or Rabbit to be handled elsewhere.
 * Create or find a suitable unique correlation ID for use in the log interface, handy to watch a series of actions processed against a request to bid.
