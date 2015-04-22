@@ -11,25 +11,28 @@ import (
 
 func main() {
 	fmt.Println("start")
-	http.HandleFunc("/dibbler", requestToBidHandler)
+	http.HandleFunc("/", requestToBidHandler)
 	err := http.ListenAndServe(":8080", nil)
 	fmt.Println(err)
 }
 
 func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
+	// Create GUID
 	bidRepository := repo.NewRedisBidRepository("localhost:6379")
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())
-	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, bidRepository)
 
+	// log (guid, timestamp, body)
+	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, bidRepository)
+	// log (guid, timestamp, eligibleCampaigns)
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	// if no eligible campatins no need to call place bids
 	success, err := service.PlaceBids(eligibleCampaigns, bidRepository)
-
+	//log (guid, timestamp, bid placed)
 	if err != nil {
 		fmt.Println(err)
 	}

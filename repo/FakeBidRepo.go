@@ -9,12 +9,13 @@ type FakeBidRepository struct {
 	BidShouldBeSuccesfull    bool
 }
 
-func (r *FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool) {
+func (r *FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool, error) {
 	r.BidAttempts += 1
 	if r.TestingExhaustedCampaign {
 		campaign.RemainingBudget = 0
 	}
-	return campaign, r.BidShouldBeSuccesfull
+
+	return campaign, r.BidShouldBeSuccesfull, nil
 }
 
 func (r *FakeBidRepository) GetCampaigns() ([]models.Campaign, error) {

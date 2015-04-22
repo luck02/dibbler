@@ -26,6 +26,7 @@ func GetSortedApplicableCampaigns(requestToBidJSON string, bidRepository repo.Bi
 	for _, campaign := range campaigns {
 		if campaignApplicable(requestToBidData, campaign) {
 			applicableCampaigns = append(applicableCampaigns, campaign)
+			// log (guid, timestamp, type:CampaginApplicable, campaign)
 			fmt.Println("Applicable Campaign:")
 			fmt.Println(campaign)
 		}

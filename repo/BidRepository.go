@@ -13,7 +13,7 @@ import (
 
 // BidRepository allows us to get campaigns and place bids
 type BidRepository interface {
-	PlaceBid(models.Campaign) (models.Campaign, bool)
+	PlaceBid(models.Campaign) (models.Campaign, bool, error)
 	GetCampaigns() ([]models.Campaign, error)
 }
 
@@ -30,9 +30,49 @@ func NewRedisBidRepository(server string) *RedisBidRepository {
 }
 
 // PlaceBid will decrement the current value of the campaign to
-func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool) {
-	// hincrbyfloat campaigns:1 remainingBudget -.00032
-	return models.Campaign{}, true
+func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign, bool, error) {
+	campaignIdKey := fmt.Sprintf("campaigns:%d", campaign.ID)
+
+	conn := r.pool.Get()
+	defer conn.Close()
+
+	conn.Send("WATCH", campaignIdKey)
+	conn.Send("HGET", campaignIdKey, "RemainingBudget")
+	conn.Flush()
+	conn.Receive()
+
+	remainingBudget, err := redis.Float64(conn.Receive())
+	if err != nil {
+		return models.Campaign{}, false, err
+	}
+
+	if float32(remainingBudget) < campaign.BidCpm/1000 {
+		campaign.RemainingBudget = 0
+		err = r.saveCampaign(campaign)
+		if err != nil {
+			return campaign, false, err
+		}
+
+		campaign, err := r.getCampaign(campaign.ID)
+		return campaign, false, err
+	}
+
+	conn.Send("MULTI")
+	conn.Send("HINCRBYFLOAT", campaignIdKey, "RemainingBudget", -campaign.BidCpm/1000)
+	_, err = conn.Do("EXEC")
+	if err != nil {
+		return models.Campaign{}, false, err
+	}
+
+	if err != nil {
+		return models.Campaign{}, false, err
+	}
+
+	campaign, err = r.getCampaign(campaign.ID)
+	if err != nil {
+		return models.Campaign{}, false, err
+	}
+	return campaign, true, nil
 }
 
 func (r *RedisBidRepository) GetCampaigns() ([]models.Campaign, error) {
@@ -83,7 +123,7 @@ func (r *RedisBidRepository) saveCampaign(campaign models.Campaign) error {
 	if err != nil {
 		return err
 	}
-	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), "CampaignJson", campaignJSON, targetType, targetJson, "RemainingBudget", campaign.RemainingBudget)
+	_, err = conn.Do("HMSET", fmt.Sprintf("campaigns:%d", campaign.ID), "CampaignJson", campaignJSON, targetType, targetJson, "RemainingBudget", campaign.RemainingBudget, "BidCPM", campaign.BidCpm)
 
 	return err
 }

@@ -74,6 +74,72 @@ func TestICanSaveFixturesAndLoadThem(t *testing.T) {
 }
 
 func TestPlaceBidSuccess(t *testing.T) {
-	//redisBidRepo := RedisBidRepository{}
+	bidRepository := NewRedisBidRepository("localhost:6379")
+
+	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
+	if err != nil {
+		t.Errorf("Failed to save campaign")
+	}
+
+	resultCampaign, success, err := bidRepository.PlaceBid(fixtures.CampaignTests[0])
+	if !success || err != nil {
+		t.Errorf("Failed to place bid %v, %v", success, err)
+	}
+	expected := fixtures.CampaignTests[0].RemainingBudget - fixtures.CampaignTests[0].BidCpm/1000
+
+	if resultCampaign.RemainingBudget != expected {
+		t.Errorf("Got: %d : Expected %d", resultCampaign.RemainingBudget, expected)
+	}
+}
+
+func TestPlaceBidExhaustion(t *testing.T) {
+	campaign := fixtures.CampaignTests[0]
+
+	campaign.RemainingBudget = 0.25
+	totalRuns := int(campaign.RemainingBudget / (campaign.BidCpm / 1000))
+	bidRepository := NewRedisBidRepository("localhost:6379")
+
+	err := bidRepository.saveCampaign(campaign)
+	if err != nil {
+		t.Error(err)
+	}
+	i := 0
+	success := true
+	for success {
+		campaign, success, err = bidRepository.PlaceBid(campaign)
+		if !success {
+			break
+		}
+		if err != nil {
+			t.Error(err)
+		}
+		i++
+	}
+
+	if campaign.RemainingBudget != 0 {
+		t.Errorf("RemainingBudget Expected: 0\n actual: %d", campaign.RemainingBudget)
+	}
+
+	if totalRuns != i {
+		t.Errorf("Expected total debits: %d   actual total Debits %d", totalRuns, i)
+	}
+
+}
+
+var (
+	bidRepository = NewRedisBidRepository("localhost:6379")
+)
+
+func BenchmarkPlaceBid(b *testing.B) {
+	//	campaign := fixtures.CampaignTests[0]
+	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
+	if err != nil {
+		b.Error(err)
+	}
+
+	_, _, err = bidRepository.PlaceBid(fixtures.CampaignTests[0])
+	if err != nil {
+		b.Error(err)
+	}
 
 }
