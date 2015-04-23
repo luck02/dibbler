@@ -18,7 +18,7 @@ import (
 func main() {
 	var port = flag.Int("port", 8080, "Port to run webserver on")
 	flag.Parse()
-	fmt.Println(*port)
+
 	logrus.Info(fmt.Sprintf("Server starting on port:%d", *port))
 	http.HandleFunc("/", requestToBidHandler)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", *port), nil))
