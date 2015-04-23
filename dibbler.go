@@ -17,8 +17,10 @@ import (
 
 func main() {
 	var port = flag.Int("port", 8080, "Port to run webserver on")
+	var logFile = flag.String("logfile", "log.txt", "Logfile path and name")
 	flag.Parse()
 
+	initLogger(*logFile)
 	logrus.Info(fmt.Sprintf("Server starting on port:%d", *port))
 	http.HandleFunc("/", requestToBidHandler)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", *port), nil))
@@ -57,10 +59,10 @@ func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func init() {
+func initLogger(logFileAndPath string) {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
-	file, err := os.Create("./logs.txt")
+	file, err := os.Create(logFileAndPath)
 	if err != nil {
 		panic(err)
 	}
