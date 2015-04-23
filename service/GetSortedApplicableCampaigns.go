@@ -45,18 +45,25 @@ func campaignApplicable(requestToBidJSON map[string]interface{}, campaign models
 			return appName == target.AppName
 		}
 	case models.AdTarget:
-		width, err := requestToBidQuery.Int("imp", "0", "banner", "w")
+		arrayOfImpressions, err := requestToBidQuery.ArrayOfObjects("imp")
 		if err != nil {
 			logrus.Info(err)
 		}
+		for _, impression := range arrayOfImpressions {
+			impressionQuery := jsonq.NewQuery(impression)
+			width, err := impressionQuery.Int("banner", "w")
+			if err != nil {
+				logrus.Info(err)
+			}
 
-		height, err := requestToBidQuery.Int("imp", "0", "banner", "h")
-		if err != nil {
-			logrus.Info(err)
-		}
+			height, err := impressionQuery.Int("banner", "h")
+			if err != nil {
+				logrus.Info(err)
+			}
 
-		if width == target.Width && height == target.Height {
-			return true
+			if width == target.Width && height == target.Height {
+				return true
+			}
 		}
 	case models.CountryTarget:
 		if country, err := requestToBidQuery.String("device", "geo", "country"); err != nil {

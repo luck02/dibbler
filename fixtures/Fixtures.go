@@ -33,6 +33,13 @@ var RequestToBidAdSize = `
         "name": "Test App For ad placement"
     },
     "imp": [
+		{
+            "banner": {
+                "h": 120,
+                "w": 300
+            },
+            "id": "1"
+        },
         {
             "banner": {
                 "h": 728,
