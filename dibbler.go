@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,9 +16,12 @@ import (
 )
 
 func main() {
-	fmt.Println("start")
+	var port = flag.Int("port", 8080, "Port to run webserver on")
+	flag.Parse()
+	fmt.Println(*port)
+	logrus.Info(fmt.Sprintf("Server starting on port:%d", *port))
 	http.HandleFunc("/", requestToBidHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", *port), nil))
 }
 
 func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
