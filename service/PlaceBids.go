@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/luck02/dibbler/models"
 	"github.com/luck02/dibbler/repo"
 )
@@ -31,7 +31,8 @@ func PlaceBids(sortedCampaigns []models.Campaign, bidRepository repo.BidReposito
 			} else if success {
 				return true, nil
 			} else if resultCampaign.RemainingBudget <= 0 {
-				fmt.Printf("Campaign %v exhausted", resultCampaign)
+				logrus.WithFields(logrus.Fields{"Event": "CampaignExhausted", "Campaign": campaign}).Info("Campaign Exhausted")
+
 				break // campaign exhausted
 			} else {
 				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond) // I think this is a smell

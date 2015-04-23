@@ -18,7 +18,7 @@ func init() {
 }
 
 func TestICanSaveAndLoadACampaign(t *testing.T) {
-	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
+	err := bidRepository.SaveCampaign(fixtures.CampaignTests[0])
 
 	if err != nil {
 		t.Errorf("Error should be nil, was: %v", err)
@@ -37,7 +37,7 @@ func TestICanSaveAndLoadACampaign(t *testing.T) {
 
 func TestICanSaveFixturesAndLoadThem(t *testing.T) {
 	for _, value := range fixtures.CampaignTests {
-		err := bidRepository.saveCampaign(value)
+		err := bidRepository.SaveCampaign(value)
 		if err != nil {
 			t.Error(err)
 		}
@@ -54,7 +54,7 @@ func TestICanSaveFixturesAndLoadThem(t *testing.T) {
 }
 
 func TestPlaceBidSuccess(t *testing.T) {
-	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
+	err := bidRepository.SaveCampaign(fixtures.CampaignTests[0])
 	if err != nil {
 		t.Errorf("Failed to save campaign")
 	}
@@ -76,7 +76,7 @@ func TestPlaceBidExhaustion(t *testing.T) {
 	campaign.RemainingBudget = 0.25
 	totalRuns := int(campaign.RemainingBudget / (campaign.BidCpm / 1000))
 
-	err := bidRepository.saveCampaign(campaign)
+	err := bidRepository.SaveCampaign(campaign)
 	if err != nil {
 		t.Error(err)
 	}
@@ -104,7 +104,7 @@ func TestPlaceBidExhaustion(t *testing.T) {
 }
 
 func BenchmarkPlaceBid(b *testing.B) {
-	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
+	err := bidRepository.SaveCampaign(fixtures.CampaignTests[0])
 	if err != nil {
 		b.Error(err)
 	}

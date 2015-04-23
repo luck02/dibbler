@@ -49,7 +49,7 @@ func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign
 
 	if float32(remainingBudget) < campaign.BidCpm/1000 {
 		campaign.RemainingBudget = 0
-		err = r.saveCampaign(campaign)
+		err = r.SaveCampaign(campaign)
 		if err != nil {
 			return campaign, false, err
 		}
@@ -110,7 +110,7 @@ func (r *RedisBidRepository) GetCampaigns() ([]models.Campaign, error) {
 	return campaigns, nil
 }
 
-func (r *RedisBidRepository) saveCampaign(campaign models.Campaign) error {
+func (r *RedisBidRepository) SaveCampaign(campaign models.Campaign) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 
