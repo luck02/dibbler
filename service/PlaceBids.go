@@ -29,14 +29,11 @@ func PlaceBids(sortedCampaigns []models.Campaign, bidRepository repo.BidReposito
 			if resultCampaign, success, err := bidRepository.PlaceBid(campaign); err != nil {
 				return false, err
 			} else if success {
-				// log (guid, timestamp, type.CampaignSuccessfull, campaign)
 				return true, nil
 			} else if resultCampaign.RemainingBudget <= 0 {
 				fmt.Printf("Campaign %v exhausted", resultCampaign)
-				// log (guid, timestamp, type.CampaignExahusted)
 				break // campaign exhausted
 			} else {
-				// log (guid, timestamp, type.UnableToBid, campaign)
 				time.Sleep(time.Duration(rand.Intn(100)) * time.Microsecond) // I think this is a smell
 			}
 		}

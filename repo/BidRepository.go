@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
 	"github.com/luck02/dibbler/models"
 )
@@ -72,6 +73,11 @@ func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign
 	if err != nil {
 		return models.Campaign{}, false, err
 	}
+	logrus.WithFields(logrus.Fields{
+		"Event":      "PlaceBid",
+		"Success":    true,
+		"campaignId": campaign.ID}).Info("Bid placed successfully")
+
 	return campaign, true, nil
 }
 

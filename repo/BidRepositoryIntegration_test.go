@@ -1,41 +1,23 @@
 package repo
 
 import (
-	"encoding/json"
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/luck02/dibbler/fixtures"
-	"github.com/luck02/dibbler/models"
 )
 
-func dontRunTestRedisBasicFunctions(t *testing.T) {
-	pool := newPool("localhost:6379")
+var (
+	redisExists           bool
+	redisConnectionString string = "localhost:6379"
+	bidRepository         *RedisBidRepository
+)
 
-	conn := pool.Get()
-	defer conn.Close()
-
-	n, err := conn.Do("SET", "derp", "DERPS")
-
-	fmt.Println(n)
-	fmt.Println(err)
-
-	b, err := json.Marshal(fixtures.CampaignTests[1])
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(string(b))
-
-	sampleCampaign := models.Campaign{}
-	err = json.Unmarshal(b, &sampleCampaign)
-	fmt.Println(err)
-	fmt.Printf("%+v\n", sampleCampaign)
+func init() {
+	bidRepository = NewRedisBidRepository(redisConnectionString)
 }
 
 func TestICanSaveAndLoadACampaign(t *testing.T) {
-	bidRepository := NewRedisBidRepository("localhost:6379")
 	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
 
 	if err != nil {
@@ -54,8 +36,6 @@ func TestICanSaveAndLoadACampaign(t *testing.T) {
 }
 
 func TestICanSaveFixturesAndLoadThem(t *testing.T) {
-	bidRepository := NewRedisBidRepository("localhost:6379")
-
 	for _, value := range fixtures.CampaignTests {
 		err := bidRepository.saveCampaign(value)
 		if err != nil {
@@ -74,8 +54,6 @@ func TestICanSaveFixturesAndLoadThem(t *testing.T) {
 }
 
 func TestPlaceBidSuccess(t *testing.T) {
-	bidRepository := NewRedisBidRepository("localhost:6379")
-
 	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
 	if err != nil {
 		t.Errorf("Failed to save campaign")
@@ -97,7 +75,6 @@ func TestPlaceBidExhaustion(t *testing.T) {
 
 	campaign.RemainingBudget = 0.25
 	totalRuns := int(campaign.RemainingBudget / (campaign.BidCpm / 1000))
-	bidRepository := NewRedisBidRepository("localhost:6379")
 
 	err := bidRepository.saveCampaign(campaign)
 	if err != nil {
@@ -126,12 +103,7 @@ func TestPlaceBidExhaustion(t *testing.T) {
 
 }
 
-var (
-	bidRepository = NewRedisBidRepository("localhost:6379")
-)
-
 func BenchmarkPlaceBid(b *testing.B) {
-	//	campaign := fixtures.CampaignTests[0]
 	err := bidRepository.saveCampaign(fixtures.CampaignTests[0])
 	if err != nil {
 		b.Error(err)

@@ -3,8 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
+	"code.google.com/p/go-uuid/uuid"
+
+	"github.com/Sirupsen/logrus"
 	"github.com/luck02/dibbler/repo"
 	"github.com/luck02/dibbler/service"
 )
@@ -12,29 +17,33 @@ import (
 func main() {
 	fmt.Println("start")
 	http.HandleFunc("/", requestToBidHandler)
-	err := http.ListenAndServe(":8080", nil)
-	fmt.Println(err)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
-	// Create GUID
+	correlationId := uuid.NewUUID()
 	bidRepository := repo.NewRedisBidRepository("localhost:6379")
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())
+	logrus.WithFields(logrus.Fields{"Event": "RequestToBidReceived", "correlationId": correlationId, "content": body}).Info("Received Request")
 
-	// log (guid, timestamp, body)
 	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, bidRepository)
-	// log (guid, timestamp, eligibleCampaigns)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 	}
-	// if no eligible campatins no need to call place bids
-	success, err := service.PlaceBids(eligibleCampaigns, bidRepository)
-	//log (guid, timestamp, bid placed)
-	if err != nil {
-		fmt.Println(err)
+
+	var success bool
+	if len(eligibleCampaigns) <= 0 {
+		logrus.WithFields(logrus.Fields{"Event": "GetCampaigns", "correlationId": correlationId, "content": "No Eligible Campaigns"}).Info("Campaigns")
+	} else {
+		logrus.WithFields(logrus.Fields{"Event": "GotCampaigns", "correlationId": correlationId, "content": eligibleCampaigns}).Info("SortedCampaigns")
+		success, err = service.PlaceBids(eligibleCampaigns, bidRepository)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 	}
 
 	if success {
@@ -42,4 +51,14 @@ func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(204)
 	}
+}
+
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	file, err := os.Create("./logs.txt")
+	if err != nil {
+		panic(err)
+	}
+	logrus.SetOutput(file)
 }
