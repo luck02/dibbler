@@ -2,6 +2,10 @@
 
 Dibbler is intended as a proof of concept.
 
+Quickstart:
+* The shell script 'startTwoWebClients.sh' will compile the web server and launch two web clients. It will write two pidfiles (port8000Dibbler.pid / port8001Dibbler.pid) and each web server will have a log file port8000.log and port8001.log.
+* tools/LoadRedis will reload the bids from the fixtures in ./fixtures/Fixtures.go
+
 The goal is to accept OpenRTB requests and determine 
 * if a campaign should target the RequestToBid.
 * This involves the campaign being configured to look for certain attributes on the RequestToBid (Placement, Ad Size, etc)
