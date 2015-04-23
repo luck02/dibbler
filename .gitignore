@@ -30,3 +30,6 @@ logs.txt
 
 dibbler
 tools/loadRedis
+
+*.log
+*.pid
