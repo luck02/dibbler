@@ -65,10 +65,6 @@ func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign
 		return models.Campaign{}, false, err
 	}
 
-	if err != nil {
-		return models.Campaign{}, false, err
-	}
-
 	campaign, err = r.getCampaign(campaign.ID)
 	if err != nil {
 		return models.Campaign{}, false, err
