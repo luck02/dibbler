@@ -22,6 +22,7 @@ Architecture:
 * Will use Redis key value store to keep client credentials and use watch / exec to ensure no concurrent modification of the amount of cash remaining in a given campaign.
 
 ToDo:
+* Modify handler to returned from a closure with a channel that receives polled updates for campaign data.  This will prevent the need to reload all campaigns on every request.  
 * (done) Refactor all the bad naming (otbBlah).  Not meaningfull (and wrong acronym anyways)
 * (done) Finish the concrete redis datalayer.  I have this more or less working but I'm pretty sure it will be cleaner as a json representation for the base model object + a json representation of the target object and 2 key value pairs for: TargetType and RemainingAmount
 * (Partially done) Add a Log object that pipes to whatever implements a log interface.  Initially this will pipe to ./log.txt but a later implementation would likely pipe to a message queue like AWS Kinesis or Kafka or Rabbit to be handled elsewhere. I settled for a simple log interface that really only logs events at the top level.  For a proof of concept this is enough to start.
