@@ -1,6 +1,10 @@
 package repo
 
-import "github.com/luck02/dibbler/models"
+import (
+	"time"
+
+	"github.com/luck02/dibbler/models"
+)
 
 type FakeBidRepository struct {
 	CampaignCollection       []models.Campaign
@@ -19,5 +23,8 @@ func (r *FakeBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign,
 }
 
 func (r *FakeBidRepository) GetCampaigns() ([]models.Campaign, error) {
+	return r.CampaignCollection, nil
+}
+func (r *FakeBidRepository) GetCampaignsCached(currentTime time.Time) ([]models.Campaign, error) {
 	return r.CampaignCollection, nil
 }

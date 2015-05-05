@@ -15,6 +15,10 @@ import (
 	"github.com/luck02/dibbler/service"
 )
 
+var (
+	BidRepository = repo.NewRedisBidRepository("localhost:6379", 5)
+)
+
 func main() {
 	var port = flag.Int("port", 8080, "Port to run webserver on")
 	var logFile = flag.String("logfile", "log.txt", "Logfile path and name")
@@ -28,14 +32,14 @@ func main() {
 
 func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
 	correlationId := uuid.NewUUID()
-	bidRepository := repo.NewRedisBidRepository("localhost:6379")
+	//bidRepository := repo.NewRedisBidRepository("localhost:6379")
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	body := string(buf.Bytes())
 	logrus.WithFields(logrus.Fields{"Event": "RequestToBidReceived", "correlationId": correlationId, "content": body}).Info("Received Request")
 
-	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, bidRepository)
+	eligibleCampaigns, err := service.GetSortedApplicableCampaigns(body, BidRepository)
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -45,7 +49,7 @@ func requestToBidHandler(w http.ResponseWriter, r *http.Request) {
 		logrus.WithFields(logrus.Fields{"Event": "GetCampaigns", "correlationId": correlationId, "content": "No Eligible Campaigns"}).Info("Campaigns")
 	} else {
 		logrus.WithFields(logrus.Fields{"Event": "GotCampaigns", "correlationId": correlationId, "content": eligibleCampaigns}).Info("SortedCampaigns")
-		success, err = service.PlaceBids(eligibleCampaigns, bidRepository)
+		success, err = service.PlaceBids(eligibleCampaigns, BidRepository)
 		if err != nil {
 			fmt.Println(err)
 		}

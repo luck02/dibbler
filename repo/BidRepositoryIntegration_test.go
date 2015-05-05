@@ -1,9 +1,12 @@
 package repo
 
 import (
+	"os"
 	"reflect"
 	"testing"
+	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/luck02/dibbler/fixtures"
 )
 
@@ -14,7 +17,14 @@ var (
 )
 
 func init() {
-	bidRepository = NewRedisBidRepository(redisConnectionString)
+	bidRepository = NewRedisBidRepository(redisConnectionString, 5)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	file, err := os.Create("testoutput.txt")
+	if err != nil {
+		panic(err)
+	}
+	logrus.SetOutput(file)
 }
 
 func TestICanSaveAndLoadACampaign(t *testing.T) {
@@ -109,9 +119,28 @@ func BenchmarkPlaceBid(b *testing.B) {
 		b.Error(err)
 	}
 
-	_, _, err = bidRepository.PlaceBid(fixtures.CampaignTests[0])
-	if err != nil {
-		b.Error(err)
-	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _, err = bidRepository.PlaceBid(fixtures.CampaignTests[0])
+		if err != nil {
+			b.Error(err)
+		}
 
+	}
+}
+
+func BenchmarkGetCampaigns(b *testing.B) {
+	for _, val := range fixtures.CampaignTests {
+		err := bidRepository.SaveCampaign(val)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := bidRepository.GetCampaignsCached(time.Now())
+		if err != nil {
+			b.Error(err)
+		}
+	}
 }

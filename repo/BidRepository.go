@@ -16,16 +16,22 @@ import (
 type BidRepository interface {
 	PlaceBid(models.Campaign) (models.Campaign, bool, error)
 	GetCampaigns() ([]models.Campaign, error)
+	GetCampaignsCached(time time.Time) ([]models.Campaign, error)
 }
 
 // RedisBidRepository is the concrete implementation of BidRepository
 type RedisBidRepository struct {
-	pool *redis.Pool
+	pool            *redis.Pool
+	cachedCampaigns []models.Campaign
+	nextLoadTime    time.Time
+	campaignMaxAge  time.Duration
 }
 
 // NewRedisBidRepository is the constructor for RedisBidRepository
-func NewRedisBidRepository(server string) *RedisBidRepository {
+func NewRedisBidRepository(server string, maxAge int) *RedisBidRepository {
+	fmt.Println("newing up repo")
 	bidRepo := new(RedisBidRepository)
+	bidRepo.campaignMaxAge = time.Duration(maxAge) * time.Second
 	bidRepo.pool = newPool(server)
 	return bidRepo
 }
@@ -75,6 +81,20 @@ func (r *RedisBidRepository) PlaceBid(campaign models.Campaign) (models.Campaign
 		"campaignId": campaign.ID}).Info("Bid placed successfully")
 
 	return campaign, true, nil
+}
+func (r *RedisBidRepository) GetCampaignsCached(currentTime time.Time) ([]models.Campaign, error) {
+	var err error
+	if r.cachedCampaigns == nil || r.nextLoadTime.Before(currentTime) {
+		cachedCampaigns, err := r.GetCampaigns()
+		if err != nil {
+			return nil, err
+		}
+
+		r.cachedCampaigns = cachedCampaigns
+		r.nextLoadTime = currentTime.Add(r.campaignMaxAge)
+	}
+
+	return r.cachedCampaigns, err
 }
 
 func (r *RedisBidRepository) GetCampaigns() ([]models.Campaign, error) {
@@ -131,6 +151,7 @@ func (r *RedisBidRepository) SaveCampaign(campaign models.Campaign) error {
 }
 
 func (r *RedisBidRepository) getCampaign(ID int32) (models.Campaign, error) {
+
 	conn := r.pool.Get()
 	defer conn.Close()
 

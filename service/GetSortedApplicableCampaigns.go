@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jmoiron/jsonq"
@@ -14,7 +15,7 @@ import (
 // GetApplicableCampaigns Returns an ordered list of campaigns applicable to the given requestToBid
 func GetSortedApplicableCampaigns(requestToBidJSON string, bidRepository repo.BidRepository) ([]models.Campaign, error) {
 
-	campaigns, err := bidRepository.GetCampaigns()
+	campaigns, err := bidRepository.GetCampaignsCached(time.Now()) // hard to test, pass into function
 	if err != nil {
 		return nil, err
 	}
